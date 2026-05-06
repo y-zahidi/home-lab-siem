@@ -192,11 +192,3 @@ These are the actual takeaways from the production deployment, applied to this l
 MIT — see [LICENSE](LICENSE). The configurations are inspired by real production work at the Préfecture de Tétouan, but contain no sensitive material from that engagement.
 
 ---
-
-## About me
-
-I'm **Yassir Zahidi**, Computer Engineering student at ISMAGI (Rabat) with a 2-year Cybersecurity background (ISMO Tétouan). Currently looking for a **PFE / internship in cybersecurity, DevSecOps or IT infrastructure** for 2026.
-
-- 🌐 [LinkedIn](https://www.linkedin.com/in/yassir-zahidi/)
-- 📧 yassirzahidi8@gmail.com
-- 💻 [github.com/y-zahidi](https://github.com/y-zahidi)
