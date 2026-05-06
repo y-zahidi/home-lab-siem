@@ -25,8 +25,22 @@ git clone https://github.com/y-zahidi/home-lab-siem.git
 cd home-lab-siem
 docker compose up -d
 # Wait ~3 min for Wazuh to bootstrap, then:
-open https://localhost:443   # admin / admin (change it!)
+open https://localhost:443   # admin / SecretPassword (change it!)
 ```
+
+---
+
+## Dashboard preview
+
+The stack actually runs — these screenshots are from a live `docker compose up` on this exact code:
+
+| Login | Modules overview |
+|:---:|:---:|
+| ![Login](screenshots/01-login.png) | ![Modules](screenshots/02-modules-overview.png) |
+| **MITRE ATT&CK Framework** | **Rules management (4 372 built-in rules)** |
+| ![MITRE](screenshots/03-mitre-attack-framework.png) | ![Rules](screenshots/04-rules-management.png) |
+| **Manager status (all daemons green)** | **Administration view** |
+| ![Status](screenshots/06-manager-status.png) | ![Admin](screenshots/05-management-admin.png) |
 
 ---
 
@@ -192,3 +206,11 @@ These are the actual takeaways from the production deployment, applied to this l
 MIT — see [LICENSE](LICENSE). The configurations are inspired by real production work at the Préfecture de Tétouan, but contain no sensitive material from that engagement.
 
 ---
+
+## About me
+
+I'm **Yassir Zahidi**, Computer Engineering student at ISMAGI (Rabat) with a 2-year Cybersecurity background (ISMO Tétouan). Currently looking for a **PFE / internship in cybersecurity, DevSecOps or IT infrastructure** for 2026.
+
+- 🌐 [LinkedIn](https://www.linkedin.com/in/yassir-zahidi/)
+- 📧 yassirzahidi8@gmail.com
+- 💻 [github.com/y-zahidi](https://github.com/y-zahidi)
