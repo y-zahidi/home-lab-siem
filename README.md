@@ -2,8 +2,8 @@
 
 > Reproducible reference deployment of the multi-layer SIEM stack I worked
 > with during my **cybersecurity internship at the Préfecture de Tétouan
-> (SSIC, May 2024)**, packaged as a single docker-compose project so anyone
-> can spin it up locally for study.
+> (02 May 2024 → 31 May 2024)**, packaged as a single docker-compose project
+> so anyone can spin it up locally for study.
 
 ![Status](https://img.shields.io/badge/status-active-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
@@ -13,12 +13,24 @@
 
 ---
 
+## Internship context
+
+| Field | Value |
+|---|---|
+| Project title | *Cyberstratégie 2.0 — Vers une Gestion Intégrée des Menaces* |
+| Host organisation | Préfecture de Tétouan — Ministère de l'Intérieur, Royaume du Maroc |
+| Period | 02 May 2024 → 31 May 2024 (1 month) |
+| Track | *Infrastructure digitale, option Cybersécurité* — ISMO Tétouan |
+| Supervisors | Khalid Fikri · Otman Ahagan |
+
 ## Scope
 
 During my internship at the Préfecture de Tétouan, I worked on:
 
 - Deploying a multi-layer **SIEM** with **Wazuh + Suricata + Sysmon + MISP +
   VirusTotal** for endpoint, network and threat-intel telemetry.
+- **Integrating Wazuh** with each telemetry source one by one
+  (FortiGate · Ubuntu · Windows · Sysmon · VirusTotal · Suricata · MISP).
 - Configuring and hardening a **FortiGate NGFW** in production (rule-base
   review, IPS profiles, SSL inspection, GeoIP filtering).
 - Performing authenticated vulnerability scans with **Nessus** and internal
@@ -44,6 +56,19 @@ dashboard navigation outside the production environment.
 | Network IDS | **Suricata** | EVE JSON output ingested by Wazuh |
 | Endpoint telemetry (Windows) | **Sysmon** | Process / network / DNS visibility |
 | Container orchestration | **Docker Compose** | Single-command spin-up |
+
+### Wazuh integrations covered in the lab
+
+Mirroring the seven integrations documented in the internship report,
+in the order they were rolled out at the Préfecture:
+
+1. **Wazuh ↔ FortiGate** — syslog forwarding from the NGFW.
+2. **Wazuh ↔ Ubuntu** — Linux agent enrollment.
+3. **Wazuh ↔ Windows** — Windows agent enrollment.
+4. **Wazuh ↔ Sysmon** — deep process / network / DNS telemetry.
+5. **Wazuh ↔ VirusTotal** — active response on suspicious file hashes.
+6. **Wazuh ↔ Suricata** — ingest EVE JSON from the network IDS.
+7. **Wazuh ↔ MISP** — IOC enrichment via threat-intel feeds (optional).
 
 Components from the production deployment that are **not** in this lab:
 
@@ -181,7 +206,8 @@ SwiftOnSecurity baseline.
 ## License
 
 MIT — see [LICENSE](LICENSE). Inspired by real production work at the
-Préfecture de Tétouan; contains no sensitive material from that engagement.
+Préfecture de Tétouan during the internship of 02 May → 31 May 2024;
+contains no sensitive material from that engagement.
 
 ---
 
