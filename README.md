@@ -197,9 +197,9 @@ SwiftOnSecurity baseline.
 - [x] Single-node Wazuh + Suricata stack via docker compose
 - [x] Self-signed certs generation script
 - [x] Live screenshots of the dashboard
+- [x] [Atomic Red Team simulation walkthrough](docs/ATOMIC-RED-TEAM-WALKTHROUGH.md) (T1110.001 + T1059.001)
 - [ ] Documented MISP integration (optional add-on)
 - [ ] Sysmon SwiftOnSecurity ruleset for Windows agents
-- [ ] Atomic Red Team simulation walkthrough
 
 ---
 
