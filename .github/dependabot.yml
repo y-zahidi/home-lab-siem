@@ -1,0 +1,30 @@
+# Dependabot configuration — keeps dependencies patched
+# Docs: https://docs.github.com/en/code-security/dependabot
+version: 2
+updates:
+  # GitHub Actions used in CI workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(actions)"
+
+  # Python dependencies (if/when added)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(pip)"
+
+  # Docker base-image updates for the SIEM stack
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(docker)"
