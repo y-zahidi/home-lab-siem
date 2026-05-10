@@ -11,7 +11,7 @@ jobs:
   validate-compose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate docker-compose.yml syntax
         run: docker compose config --quiet && echo "✔ docker-compose.yml is valid"
