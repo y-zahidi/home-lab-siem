@@ -1,0 +1,25 @@
+name: Docker Compose validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docker-compose.yml'
+      - 'config/**'
+
+jobs:
+  validate-compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml syntax
+        run: docker compose config --quiet && echo "✔ docker-compose.yml is valid"
+
+      - name: Check required services present
+        run: |
+          services=$(docker compose config --services)
+          for svc in wazuh.manager wazuh.indexer wazuh.dashboard; do
+            echo "$services" | grep -q "$svc" || { echo "Missing service: $svc"; exit 1; }
+            echo "✔ $svc"
+          done

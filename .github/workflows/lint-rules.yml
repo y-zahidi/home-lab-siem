@@ -1,0 +1,30 @@
+name: Lint Wazuh rules
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'config/wazuh/rules/**'
+      - 'config/wazuh/decoders/**'
+  pull_request:
+    paths:
+      - 'config/wazuh/rules/**'
+
+jobs:
+  lint-xml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate XML syntax
+        run: |
+          for f in config/wazuh/rules/*.xml config/wazuh/decoders/*.xml; do
+            [ -f "$f" ] || continue
+            xmllint --noout "$f" && echo "✔ $f" || { echo "✖ $f"; exit 1; }
+          done
+
+      - name: Check MITRE IDs present
+        run: |
+          count=$(grep -rh '<id>T' config/wazuh/rules/ 2>/dev/null | wc -l | tr -d ' ')
+          echo "MITRE technique IDs found: $count"
+          [ "$count" -gt 0 ] || { echo "No MITRE IDs found in rules"; exit 1; }
