@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you reference this lab in research, courseware, or talks, please cite it as below."
+title: "home-lab-siem — reproducible Wazuh + Suricata + Sysmon + MISP SOC stack"
+authors:
+  - family-names: Zahidi
+    given-names: Yassir
+    email: yassirzahidi8@gmail.com
+type: software
+abstract: >-
+  A reproducible SOC-grade home lab packaged as docker compose. Wazuh manager
+  with custom decoders, Suricata IDS on a span port, Sysmon/auditd telemetry,
+  MISP threat intelligence with CIRCL and abuse.ch feeds, and VirusTotal
+  enrichment. Mirrors the architecture deployed at the Préfecture de Tétouan
+  (SSIC) repackaged so anyone can `docker compose up`.
+keywords:
+  - siem
+  - wazuh
+  - suricata
+  - sysmon
+  - misp
+  - blue-team
+  - detection-engineering
+  - threat-intelligence
+  - mitre-attack
+license: MIT
+repository-code: "https://github.com/y-zahidi/home-lab-siem"
+url: "https://y-zahidi.github.io"
