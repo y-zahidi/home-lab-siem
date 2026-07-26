@@ -1,25 +1,15 @@
 # home-lab-siem
 
-> Reproducible SIEM lab built around the architecture I deployed during my cybersecurity internship at the **Préfecture de Tétouan (SSIC)** in May 2024 — Wazuh + Suricata + Sysmon + MISP + VirusTotal, integrated with a FortiGate firewall. This repo is the lab version: a docker-compose stack you can spin up in five minutes.
+**Design and architecture overview of a reproducible SOC-grade SIEM lab — Wazuh + Suricata + Sysmon + MISP + VirusTotal, integrated with a FortiGate firewall.**
 
 ![status](https://img.shields.io/badge/status-active-5cf2c1?labelColor=0a0e14)
 ![license](https://img.shields.io/badge/license-MIT-5cf2c1?labelColor=0a0e14)
-![docker](https://img.shields.io/badge/docker-compose-5cf2c1?labelColor=0a0e14)
 ![wazuh](https://img.shields.io/badge/wazuh-4.7-5cf2c1?labelColor=0a0e14)
 ![suricata](https://img.shields.io/badge/suricata-7.0-5cf2c1?labelColor=0a0e14)
 
-## Quick start
+> [!NOTE]
+> This repository serves as a showcase of the project design, architecture, and configuration snapshots for portfolio purposes. The full deployment codebase is hosted in a private repository.
 
-```bash
-git clone https://github.com/y-zahidi/home-lab-siem.git
-cd home-lab-siem
-./scripts/generate-certs.sh
-docker compose up -d
-# Wait ~3 min, then:
-open https://localhost:443   # admin / SecretPassword (change it)
-```
-
-Default credentials, hardening notes and certificate rotation procedure live in [`docs/HARDENING.md`](docs/HARDENING.md).
 
 ## What this is
 
@@ -145,8 +135,5 @@ MIT — see [LICENSE](LICENSE). Inspired by real production work at the Préfect
 
 ## About me
 
-I'm **Yassir Zahidi**, Computer Engineering student in Rabat with a Specialized Technician background in Cybersecurity (ISMO Tétouan). Open to a SOC / blue-team / DevSecOps internship for 2026.
+I'm **Yassir Zahidi**, Computer Engineering student in Rabat with a background in Cybersecurity. Open to a SOC / blue-team / DevSecOps internship for 2026.
 
-- Portfolio · <https://y-zahidi.github.io>
-- LinkedIn · <https://www.linkedin.com/in/yassir-zahidi/>
-- Email · yassirzahidi8@gmail.com
