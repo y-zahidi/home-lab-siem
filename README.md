@@ -1,139 +1,121 @@
+[![home-lab-siem — controlled adversary validation to detection proof](assets/siem-validation-hero.png)](docs/detections.md)
+
 # home-lab-siem
 
-**Design and architecture overview of a reproducible SOC-grade SIEM lab — Wazuh + Suricata + Sysmon + MISP + VirusTotal, integrated with a FortiGate firewall.**
+**Detection engineering · Wazuh · Suricata · Sysmon · MITRE ATT&CK · authorized attack validation**
 
-![status](https://img.shields.io/badge/status-active-5cf2c1?labelColor=0a0e14)
-![license](https://img.shields.io/badge/license-MIT-5cf2c1?labelColor=0a0e14)
-![wazuh](https://img.shields.io/badge/wazuh-4.7-5cf2c1?labelColor=0a0e14)
-![suricata](https://img.shields.io/badge/suricata-7.0-5cf2c1?labelColor=0a0e14)
+A reproducible SOC-grade lab where defensive telemetry is built, controlled adversary behavior is emulated, detections are validated, and the response path is improved through repeatable evidence.
 
-> [!NOTE]
-> This repository serves as a showcase of the project design, architecture, and configuration snapshots for portfolio purposes. The full deployment codebase is hosted in a private repository.
+> **Portfolio showcase:** This repository documents the architecture, selected configurations, detection logic, validation approach, and screenshots for a private personal lab. It intentionally excludes secrets, personal environment details, and material that should not be public.
 
+[Detection dossier](docs/detections.md) · [Hardening notes](docs/HARDENING.md) · [Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
-## What this is
+---
 
-A working SIEM stack with the same components I used in production at the Préfecture, scoped down to what runs on a single laptop:
+## The validation loop
 
-- **Wazuh** (manager + indexer + dashboard) — log management, HIDS, file integrity monitoring, MITRE ATT&CK rule tagging.
-- **Suricata** — network IDS with EVE JSON output ingested by Wazuh.
-- **Sysmon** baseline (SwiftOnSecurity ruleset) for Windows endpoints.
-- **Docs** for the integrations I had in production but couldn't bring into the lab cleanly: MISP, VirusTotal, FortiGate, Nessus.
+| 1 · Instrument | 2 · Emulate | 3 · Detect | 4 · Triage | 5 · Improve |
+|:--|:--|:--|:--|:--|
+| Collect host, network, and firewall telemetry. | Exercise controlled, authorized techniques in the lab. | Map observations to detection logic and ATT&CK context. | Explain impact, false positives, and the next analyst action. | Tune the rule or control, then run the test again. |
 
-## Architecture
+The project is not a dashboard demonstration. It is a working learning environment for answering a concrete defensive question: **can the telemetry, rule, and triage process detect a realistic authorized behavior with useful context?**
 
-```
-┌──────────────────────────────────────┐
-│        Endpoints (lab targets)       │
-│  Linux + auditd      Windows + Sysmon│
-│   wazuh-agent          wazuh-agent   │
-└─────────┬─────────────────┬──────────┘
-          │                 │
-          ▼                 ▼
-   ┌──────────────────────────────┐
-   │ Suricata (IDS, EVE JSON out) │
-   └──────────────┬───────────────┘
-                  ▼
-   ┌──────────────────────────────┐
-   │ Wazuh manager — decoders,    │
-   │ rules, active response       │
-   └──────────────┬───────────────┘
-                  ▼
-   ┌──────────────────────────────┐
-   │ Wazuh indexer (OpenSearch) + │
-   │ Wazuh dashboard              │
-   └──────────────────────────────┘
+### Detection-validation schema
+
+![Detection validation flow: authorized scenario, observable behavior, telemetry, detection context, analyst decision, and improvement](docs/diagrams/detection-validation-flow.png)
+
+The diagram is the project’s operating model. It begins with an authorized scenario, requires observable evidence, and ends only after the detection or control has been improved and tested again.
+
+---
+
+## Lab architecture
+
+```text
+Linux / auditd ─┐
+Windows / Sysmon ├─> Wazuh agent ─> Wazuh manager ─> Indexer + dashboard
+FortiGate logs ─┤          │
+Suricata EVE ───┘          └─> custom decoders, rules, MITRE mapping, active-response design
 ```
 
-## What lives where
+| Layer | Public evidence |
+|:--|:--|
+| Endpoint telemetry | Wazuh agent configuration, Linux auditd context, and Windows Sysmon documentation. |
+| Network visibility | Suricata EVE JSON configuration and network-detection context. |
+| Detection logic | MITRE-mapped custom rules, sample logs, and triage notes. |
+| Threat intelligence | Integration design notes for MISP, VirusTotal, and perimeter devices. |
+| Validation | Controlled atomic-test walkthrough and documented attack-to-detection scenarios. |
 
-```
-.
-├── docker-compose.yml          single-node stack
-├── config/
-│   ├── wazuh/
-│   │   ├── ossec.conf
-│   │   ├── rules/local_rules.xml   ← custom detections (see below)
-│   │   └── decoders/
-│   └── suricata/
-│       └── suricata.yaml
-├── scripts/
-│   └── generate-certs.sh           one-shot certs for the manager↔indexer chain
-├── docs/
-│   ├── HARDENING.md
-│   ├── MISP_INTEGRATION.md
-│   ├── WINDOWS_AGENT.md
-│   ├── architecture.md
-│   ├── detections.md
-│   └── atomic-red-team.md
-└── screenshots/                    from a real `docker compose up`
-```
+---
 
-## Detections shipped
+## Detection evidence
 
-Every rule is tagged with the MITRE ATT&CK technique it targets. Sample logs and triage steps live in [`docs/detections.md`](docs/detections.md).
+Every included rule is mapped to a relevant ATT&CK technique and should be read together with its log source, expected outcome, and triage context in the [detection dossier](docs/detections.md).
 
-| Rule ID | Detection | MITRE |
-|---|---|---|
-| 100100 | SSH brute-force (5+ failures in 60s) | T1110.001 |
-| 100101 | Suspicious PowerShell (encoded, IEX, downloadstring) | T1059.001 |
-| 100102 | Port scan from a single source (Suricata-based) | T1046 |
-| 100103 | File integrity violation in `/etc` or `C:\Windows\System32` | T1565.001 |
-| 100104 | Probable web shell upload | T1505.003 |
+| Rule ID | Defensive question | ATT&CK context |
+|---:|:--|:--|
+| `100100` | Can repeated SSH authentication failures be detected as a brute-force pattern? | `T1110.001` |
+| `100101` | Can suspicious PowerShell behavior be distinguished for investigation? | `T1059.001` |
+| `100102` | Can a concentrated network scan be identified from Suricata evidence? | `T1046` |
+| `100103` | Can sensitive operating-system paths be monitored for integrity violations? | `T1565.001` |
+| `100104` | Can a probable web-shell upload be surfaced for rapid investigation? | `T1505.003` |
 
-The XML for these rules is in [`config/wazuh/rules/local_rules.xml`](config/wazuh/rules/local_rules.xml). They're a starting point, not a SOC ruleset — see "Lessons learned" below.
+> **Validation principle:** A detection is not complete because it exists in a rule file. It is complete only when it has an observable test path, useful triage guidance, and a documented false-positive story.
 
-## Why this stack (and not just ELK)
+---
 
-| Need | Choice | Reason |
-|---|---|---|
-| Log shipping & parsing | Wazuh agent | Native enrollment, decoders for 100+ apps. |
-| HIDS / FIM / Rootcheck | Wazuh manager | Built-in, no extra agent. |
-| Network IDS | Suricata | EVE JSON, multi-threaded, ET Open ruleset, easy Wazuh ingest. |
-| Search & storage | Wazuh indexer (OpenSearch) | Bundled, Apache 2.0, no Elastic license drama. |
-| Endpoint telemetry (Windows) | Sysmon + SwiftOnSecurity | The de-facto baseline. |
-| MITRE ATT&CK mapping | Built into Wazuh | Each rule auto-tagged. |
+## Screenshots from the lab
 
-What I cut for the lab:
-- **Single-node Wazuh.** Production should be a 3-node indexer cluster.
-- **No live MISP container.** MISP integration is documented in [`docs/MISP_INTEGRATION.md`](docs/MISP_INTEGRATION.md); running it adds operational overhead I didn't want in a `docker compose up`.
-- **No FortiGate emulation.** Emulating a FortiGate locally needs a paid VM image. The integration patterns I used at the Préfecture are documented but not runnable here.
-
-## Dashboard
-
-Screenshots from a live run on this exact code:
-
-| Login | Modules |
+| Entry and posture | ATT&CK and detection context |
 |:--:|:--:|
-| ![login](screenshots/01-login.png) | ![modules](screenshots/02-modules-overview.png) |
-| **MITRE ATT&CK** | **Rules (4 372 built-in)** |
-| ![mitre](screenshots/03-mitre-attack-framework.png) | ![rules](screenshots/04-rules-management.png) |
-| **Manager status** | **Administration** |
-| ![status](screenshots/06-manager-status.png) | ![admin](screenshots/05-management-admin.png) |
+| ![Wazuh login](screenshots/01-login.png) | ![MITRE ATT&CK view](screenshots/03-mitre-attack-framework.png) |
+| **Platform modules** | **Rule-management view** |
+| ![Wazuh modules](screenshots/02-modules-overview.png) | ![Wazuh rules](screenshots/04-rules-management.png) |
 
-## Lessons learned
+These visuals are evidence of the lab’s defensive interface; they are not a substitute for the documented detection logic and controlled validation approach.
 
-Four things I learned at the Préfecture that this lab tries to bake in:
+---
 
-1. **Tune out the noise on day 1.** Out-of-the-box Wazuh fires hundreds of alerts an hour from `sudo`, `cron`, and `systemd-logind`. The first PR I made on the production repo was a tuning ruleset that filtered ~85% of the volume.
-2. **Active Response is a foot-gun.** A typo in an `ip-blacklist` config can lock the SOC analyst out of the manager. Run it audit-only for the first two weeks.
-3. **Self-signed certs work — document the rotation.** Wazuh certs are valid 10 years out of the box, but the manager↔indexer chain breaks silently if you reinstall one component. Keep `scripts/generate-certs.sh` checked in.
-4. **The dashboard is not a SOC.** A dashboard is a starting point. Real triage happens in tickets — plan the integration with Jira / GLPI / TheHive before go-live.
+## What is public—and what remains private
+
+| Public showcase material | Private or omitted material |
+|:--|:--|
+| Architecture, selected configurations, custom detection examples, screenshots, and hardening guidance | Personal addresses, credentials, sensitive dashboards, full environment inventory, and any third-party material |
+| Controlled-validation approach and ATT&CK mappings | Operational details that would reduce the safety of the lab or be unsuitable for public release |
+| Reproducible design concepts | Any employment or internship-confidential implementation details |
+
+---
+
+## Explore the repository
+
+| Resource | Purpose |
+|:--|:--|
+| [`docs/detections.md`](docs/detections.md) | Detection purpose, sample logs, and triage context. |
+| [`docs/HARDENING.md`](docs/HARDENING.md) | Practical security and operational hardening decisions. |
+| [`docker-compose.yml`](docker-compose.yml) | Public single-node stack composition and component relationships. |
+| [`config/suricata/suricata.yaml`](config/suricata/suricata.yaml) | Network-telemetry configuration context. |
+| [`config/wazuh/rules/local_rules.xml`](config/wazuh/rules/local_rules.xml) | The public custom-rule examples. |
+
+---
+
+## Responsible use
+
+> **Responsible use:** All attack-validation work is limited to owned labs, cyber ranges, CTFs, or explicitly authorized environments. The objective is to improve defensive visibility, detections, and incident response—not to target third-party systems.
+
+Security concerns can be reported through the repository’s [security policy](SECURITY.md). Contributions are welcome through the [contribution guide](CONTRIBUTING.md).
+
+---
 
 ## Roadmap
 
-- [x] Single-node Wazuh + Suricata + 5 baseline rules.
-- [x] Atomic Red Team walkthrough (T1110.001, T1059.001).
-- [ ] MISP integration as an opt-in `docker compose --profile misp up`.
-- [ ] Active Response examples (audit-mode + production-mode).
-- [ ] Windows agent + Sysmon SwiftOnSecurity ruleset bundled.
-- [ ] CI lint of Wazuh rule XML on every PR.
+- [x] Wazuh, Suricata, and core endpoint telemetry architecture.
+- [x] MITRE-mapped detection examples and controlled validation material.
+- [ ] Add a compact technique → telemetry → rule → outcome validation matrix.
+- [ ] Publish further redacted examples of tuning decisions and false-positive reduction.
+- [ ] Add CI checks for rule XML and Markdown/reference quality.
+- [ ] Expand controlled endpoint-validation documentation.
 
-## License
+## Author
 
-MIT — see [LICENSE](LICENSE). Inspired by real production work at the Préfecture de Tétouan; contains no sensitive material from that engagement.
+**Yassir Zahidi** — Adversary-informed security builder focused on detection engineering, cyberdeception, DFIR, and authorized security testing.
 
-## About me
-
-I'm **Yassir Zahidi**, Computer Engineering student in Rabat with a background in Cybersecurity. Open to a SOC / blue-team / DevSecOps internship for 2026.
-
+[Portfolio](https://y-zahidi.github.io) · [LinkedIn](https://www.linkedin.com/in/yassir-zahidi/) · [GitHub](https://github.com/y-zahidi)

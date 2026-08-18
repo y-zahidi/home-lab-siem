@@ -1,0 +1,23 @@
+%%{init: {'theme':'base','themeVariables': {'background':'#07111D','primaryColor':'#0E1C2C','primaryTextColor':'#E7EEF7','primaryBorderColor':'#79E2FF','lineColor':'#9CB0C5','tertiaryColor':'#0E1C2C','clusterBkg':'#0E1C2C','clusterBorder':'#2A4560','fontFamily':'Arial'}}}%%
+flowchart TB
+    A["1. Authorized scenario<br/>CTF, cyber range, or owned lab"]
+    B["2. Observable behavior<br/>Endpoint, network, firewall, or identity signal"]
+    C["3. Telemetry collection<br/>Sysmon · Suricata · auditd · Wazuh agent"]
+    D["4. Detection context<br/>Rule, ATT&CK mapping, severity, and enrichment"]
+    E["5. Analyst decision<br/>Triage, response action, and false-positive note"]
+    F["6. Improvement<br/>Tune the rule or control, then revalidate"]
+
+    A --> B --> C --> D --> E --> F
+    F -. test again .-> A
+
+    classDef red fill:#3A1720,stroke:#FF7A8A,color:#E7EEF7,stroke-width:2px;
+    classDef blue fill:#0E2A3C,stroke:#79E2FF,color:#E7EEF7,stroke-width:2px;
+    classDef violet fill:#2A1D47,stroke:#B89CFF,color:#E7EEF7,stroke-width:2px;
+    classDef green fill:#12362F,stroke:#5CF2C1,color:#E7EEF7,stroke-width:2px;
+
+    class A,B red;
+    class C blue;
+    class D violet;
+    class E,F green;
+
+    linkStyle default stroke:#9CB0C5,stroke-width:2px;
